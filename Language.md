@@ -66,7 +66,7 @@ See [creusot](https://github.com/xldenis/creusot) for documentation about pearli
 ```
 cargo creusot
 ```
-in the crate you want to analyze. To compile hacspec code to pearlite statements in coq run
+in the crate you want to analyze. This might require updating the version in rust-toolchain to match the version used by creusot (this is how creusot finds relevant packages to analyze). To compile hacspec code to pearlite statements in coq run
 ```
 cargo hacspec -e v -o <output_file_name> -dir <output_dir> <crate_name>
 ```
