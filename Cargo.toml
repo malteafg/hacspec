@@ -12,6 +12,7 @@ members = [
     "utils/rc-bench",
     "utils/rc-tests",
     "utils/util",
+    "examples/concordium",
     "examples/curve25519",
     "examples/chacha20",
     "examples/poly1305",
@@ -31,7 +32,7 @@ members = [
     "examples/aes",
     "examples/gf128",
     "examples/aes128-gcm",
-    "examples/bls12-381-hash",
+    # "examples/bls12-381-hash",
     "examples/ed25519",
 ]
 default-members = [
@@ -44,6 +45,7 @@ default-members = [
     "utils/abstract-integers",
     "utils/attributes",
     "utils/util",
+    "examples/concordium",
     "examples/curve25519",
     "examples/chacha20",
     "examples/poly1305",
@@ -63,7 +65,7 @@ default-members = [
     "examples/aes",
     "examples/gf128",
     "examples/aes128-gcm",
-    "examples/bls12-381-hash",
+    # "examples/bls12-381-hash",
     "examples/ed25519",
     "examples/sha512",
 ]
