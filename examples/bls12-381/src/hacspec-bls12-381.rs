@@ -1,6 +1,5 @@
 // BLS: y^2 = x^3 + 4
 
-
 #[cfg(not(feature = "hacspec"))]
 extern crate hacspec_lib;
 
