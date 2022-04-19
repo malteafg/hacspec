@@ -70,3 +70,21 @@ in the crate you want to analyze. This might require updating the version in rus
 ```
 cargo hacspec -e v -o <output_file_name> -dir <output_dir> <crate_name>
 ```
+
+To get it working add the following to the Cargo.toml file of the project:
+```
+[dependencies.creusot-contracts]
+git = "https://github.com/xldenis/creusot/"
+branch = "master"
+package = "creusot-contracts"
+optional = true
+
+[features]
+contracts = ["creusot-contracts"]
+```
+And the two lines 
+```
+extern crate creusot_contracts;
+use creusot_contracts::*;
+```
+to the hacspec file using creusot/pearlite
