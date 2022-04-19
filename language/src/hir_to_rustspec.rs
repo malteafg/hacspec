@@ -528,7 +528,7 @@ fn check_special_type_from_struct_shape(tcx: &TyCtxt, def: &ty::Ty) -> SpecialTy
                         adt.variants
                             .iter()
                             .map(|variant| {
-                                let name = variant.ident(tcx.clone()).name.to_ident_string();
+                                let name = variant.ident.name.to_ident_string();
                                 let case_id = variant.def_id;
                                 let case_typ = tcx.type_of(case_id);
                                 let case_typ = match case_typ.kind() {
@@ -543,7 +543,7 @@ fn check_special_type_from_struct_shape(tcx: &TyCtxt, def: &ty::Ty) -> SpecialTy
                                             Some(ty)
                                         } else {
                                             let ty = BaseTyp::Tuple(args.collect());
-                                            Some((ty, RustspecSpan::from(variant.ident(tcx.clone()).span)))
+                                            Some((ty, RustspecSpan::from(variant.ident.span)))
                                         }
                                     }
                                     _ => None, // If the type of the constructor is not a function, then there is no payload
@@ -554,7 +554,7 @@ fn check_special_type_from_struct_shape(tcx: &TyCtxt, def: &ty::Ty) -> SpecialTy
                                             string: name,
                                             kind: TopLevelIdentKind::EnumConstructor,
                                         },
-                                        RustspecSpan::from(variant.ident(tcx.clone()).span),
+                                        RustspecSpan::from(variant.ident.span),
                                     ),
                                     case_typ,
                                 ))
@@ -599,7 +599,7 @@ fn check_special_type_from_struct_shape(tcx: &TyCtxt, def: &ty::Ty) -> SpecialTy
                         return SpecialTypeReturn::NotSpecial;
                     }
                     let variant = adt.variants.iter().next().unwrap();
-                    let name = variant.ident(tcx.clone()).name.to_ident_string();
+                    let name = variant.ident.name.to_ident_string();
                     // Some wrapper structs are defined in std, core or
                     // hacspec_lib but we don't want to import them
                     // so we special case them out here
@@ -618,13 +618,13 @@ fn check_special_type_from_struct_shape(tcx: &TyCtxt, def: &ty::Ty) -> SpecialTy
                             .iter()
                             .map(|field| {
                                 // We only allow fields without names
-                                match field.ident(tcx.clone()).name.to_ident_string().parse::<i32>() {
+                                match field.ident.name.to_ident_string().parse::<i32>() {
                                     Ok(_) => (),
                                     Err(_) => return Err(()),
                                 }
                                 let field_typ = tcx.type_of(field.did);
                                 let (ty, _) = translate_base_typ(tcx, &field_typ, &HashMap::new())?;
-                                Ok((ty, RustspecSpan::from(variant.ident(tcx.clone()).span)))
+                                Ok((ty, RustspecSpan::from(variant.ident.span)))
                             })
                             .collect(),
                     ) {
@@ -636,7 +636,7 @@ fn check_special_type_from_struct_shape(tcx: &TyCtxt, def: &ty::Ty) -> SpecialTy
                         Some(ty)
                     } else {
                         let ty = BaseTyp::Tuple(fields_typ);
-                        Some((ty, RustspecSpan::from(variant.ident(tcx.clone()).span)))
+                        Some((ty, RustspecSpan::from(variant.ident.span)))
                     };
                     return SpecialTypeReturn::Enum(BaseTyp::Enum(
                         vec![(
@@ -645,7 +645,7 @@ fn check_special_type_from_struct_shape(tcx: &TyCtxt, def: &ty::Ty) -> SpecialTy
                                     string: name,
                                     kind: TopLevelIdentKind::EnumConstructor,
                                 },
-                                RustspecSpan::from(variant.ident(tcx.clone()).span),
+                                RustspecSpan::from(variant.ident.span),
                             ),
                             case_typ,
                         )],

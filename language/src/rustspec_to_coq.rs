@@ -671,8 +671,7 @@ fn translate_func_name<'a>(
                         FuncPrefix::Array(ArraySize::Integer(i), _) => {
                             if *i == 0 {
                                 additional_args.push(RcDoc::as_string("_"))
-                            }
-                            else {
+                            } else {
                                 additional_args.push(RcDoc::as_string(format!("{}", i)))
                             }
                         }

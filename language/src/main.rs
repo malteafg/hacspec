@@ -578,8 +578,8 @@ impl Callbacks for HacspecCallbacks {
                             attrs: vec![],
                             items: parse_mod_krate_items,
                             span: rustc_span::DUMMY_SP,
-                            id: rustc_ast::DUMMY_NODE_ID,
-                            is_placeholder: false,
+                            // id: rustc_ast::DUMMY_NODE_ID,
+                            // is_placeholder: false,
                         };
 
                         // Calculate the local path from the crate root file
