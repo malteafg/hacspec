@@ -20,8 +20,8 @@ hacspec-lib = { path = "../../lib" }
 pearlite-syn = { git = "https://github.com/xldenis/creusot", branch = "master" }
 
 [features]
-# default = ["std"]
-contracts = ["creusot-contracts"]
+hacspec = []
+# contracts = ["creusot-contracts"]
 
 [dev-dependencies]
 quickcheck = "1"

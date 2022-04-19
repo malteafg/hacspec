@@ -149,8 +149,14 @@ macro_rules! _array_base {
             fn len(&self) -> usize {
                 $l
             }
+            #[cfg(feature = "std")]
             #[cfg_attr(feature = "use_attributes", not_hacspec($name))]
             fn iter(&self) -> std::slice::Iter<$t> {
+                self.0.iter()
+            }
+            #[cfg(not(feature = "std"))]
+            #[cfg_attr(feature = "use_attributes", not_hacspec($name))]
+            fn iter(&self) -> core::slice::Iter<$t> {
                 self.0.iter()
             }
 
@@ -268,6 +274,7 @@ macro_rules! _array_base {
         }
 
         impl $name {
+            #[cfg(feature = "std")]
             fn hex_string_to_vec(s: &str) -> Vec<$t> {
                 debug_assert!(s.len() % std::mem::size_of::<$t>() == 0);
                 let b: Result<Vec<$t>, ParseIntError> = (0..s.len())
@@ -276,7 +283,17 @@ macro_rules! _array_base {
                     .collect();
                 b.expect("Error parsing hex string")
             }
+            #[cfg(not(feature = "std"))]
+            fn hex_string_to_vec(s: &str) -> Vec<$t> {
+                debug_assert!(s.len() % core::mem::size_of::<$t>() == 0);
+                let b: Result<Vec<$t>, ParseIntError> = (0..s.len())
+                    .step_by(2)
+                    .map(|i| u8::from_str_radix(&s[i..i + 2], 16).map(<$t>::from))
+                    .collect();
+                b.expect("Error parsing hex string")
+            }
 
+            
             /// Read hex string to Bytes.
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec($name))]
             pub fn from_hex(s: &str) -> $name {
@@ -421,8 +438,14 @@ macro_rules! generic_array {
             fn len(&self) -> usize {
                 $l
             }
+            #[cfg(feature = "std")]
             #[cfg_attr(feature = "use_attributes", not_hacspec($name))]
             fn iter(&self) -> std::slice::Iter<T> {
+                self.0.iter()
+            }
+            #[cfg(not(feature = "std"))]
+            #[cfg_attr(feature = "use_attributes", not_hacspec($name))]
+            fn iter(&self) -> core::slice::Iter<T> {
                 self.0.iter()
             }
 
@@ -736,9 +759,10 @@ macro_rules! _implement_secret_u8_array {
                 }
                 out
             }
+            #[cfg(feature = "std")]
             #[cfg_attr(feature = "use_attributes", not_hacspec($name))]
             pub fn to_hex(&self) -> String {
-                let strs: Vec<String> = self.0.iter().map(|b| format!("{:02x}", b)).collect();
+                let strs: Vec<String> = self.0.iter().map(|b| std::format!("{:02x}", b)).collect();
                 strs.join("")
             }
         }
@@ -807,9 +831,10 @@ macro_rules! _implement_public_u8_array {
                 }
                 out
             }
+            #[cfg(feature = "std")]
             #[cfg_attr(feature = "use_attributes", not_hacspec($name))]
             pub fn to_hex(&self) -> String {
-                let strs: Vec<String> = self.0.iter().map(|b| format!("{:02x}", b)).collect();
+                let strs: Vec<String> = self.0.iter().map(|b| std::format!("{:02x}", b)).collect();
                 strs.join("")
             }
         }

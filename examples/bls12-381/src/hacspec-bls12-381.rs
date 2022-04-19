@@ -2,8 +2,8 @@
 
 use hacspec_lib::*;
 
-#[cfg(not(feature = "hacspec"))]
-extern crate creusot_contracts;
+// #[cfg(not(feature = "hacspec"))]
+// extern crate creusot_contracts;
 #[cfg(not(feature = "hacspec"))]
 use creusot_contracts::*;
 
@@ -36,7 +36,7 @@ pub fn fp2fromfp(n: Fp) -> Fp2 {
     (n, Fp::ZERO())
 }
 
-#[ensures(result === 0)]
+// #[ensures(result === 0)]
 pub fn fp2zero() -> Fp2 {
     fp2fromfp(Fp::ZERO())
 }
