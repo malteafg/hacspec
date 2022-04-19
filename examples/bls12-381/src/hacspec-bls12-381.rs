@@ -2,10 +2,17 @@
 
 use hacspec_lib::*;
 
-// #[cfg(not(feature = "hacspec"))]
-// extern crate creusot_contracts;
 #[cfg(not(feature = "hacspec"))]
-use creusot_contracts::*;
+extern crate hacspec_lib;
+// pub use hacspec_lib::*;
+
+#[cfg(feature = "hacspec")]
+use hacspec_attributes::*;
+
+#[cfg(not(feature = "hacspec"))]
+extern crate creusot_contracts;
+#[cfg(not(feature = "hacspec"))]
+pub use creusot_contracts::*; // {ensures, trusted}; // requires,
 
 public_nat_mod!( //Custom Macro - defining a newtype with some functions - well defined macro's have library functions built in
     type_name: Fp,
