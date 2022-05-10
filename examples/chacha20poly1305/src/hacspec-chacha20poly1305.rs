@@ -12,7 +12,11 @@ use hacspec_attributes::*;
 #[cfg(not(feature = "hacspec"))]
 pub use creusot_contracts::*;
 
-array!(name,4,u8);
+#[allow(non_camel_case_types)]
+#[derive(Clone, Copy)]
+pub struct Name(pub [u8; 4]);
+
+// array!(Name, 4, u8);
 
 // public_nat_mod!(
 //     type_name: Ed25519FieldElement,
