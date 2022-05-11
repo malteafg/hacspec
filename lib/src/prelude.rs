@@ -28,7 +28,9 @@ pub use num::{self, traits::sign::Signed, BigUint, CheckedSub, Num, Zero};
 pub use std::num::ParseIntError;
 pub use std::ops::*;
 pub use std::str::FromStr;
-pub use std::{cmp::min, cmp::PartialEq, fmt, fmt::Debug};
+pub use std::{cmp::min, cmp::PartialEq};
+#[cfg(feature = "hacspec")]
+pub use std::{fmt, fmt::Debug};
 
 bytes!(U16Word, 2);
 bytes!(U32Word, 4);

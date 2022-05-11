@@ -562,6 +562,7 @@ macro_rules! generic_array {
             }
         }
 
+        #[cfg(feature = "hacspec")]
         /// **Warning:** declassifies secret integer types.
         impl<T: Numeric + Copy> fmt::Debug for $name<T> {
             #[cfg_attr(feature = "use_attributes", not_hacspec($name))]
@@ -580,6 +581,7 @@ macro_rules! _secret_array {
     ($name:ident,$l:expr,$t:ty, $tbase:ty) => {
         _array_base!($name, $l, $t);
 
+        #[cfg(feature = "hacspec")]
         /// **Warning:** declassifies secret integer types.
         impl fmt::Debug for $name {
             #[cfg_attr(feature = "use_attributes", not_hacspec($name))]
@@ -676,6 +678,7 @@ macro_rules! _public_array {
     ($name:ident,$l:expr,$t:ty) => {
         _array_base!($name, $l, $t);
 
+        #[cfg(feature = "hacspec")]
         impl fmt::Debug for $name {
             #[cfg_attr(feature = "use_attributes", not_hacspec($name))]
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
