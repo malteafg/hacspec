@@ -23,74 +23,74 @@ public_nat_mod!(
     modulo_value: "ffffffff00000001000000000000000000000000ffffffffffffffffffffffff"
 );
 
-// public_nat_mod!(
-//     type_name: P256Scalar,
-//     type_of_canvas: ScalarCanvas,
-//     bit_size_of_field: 256, // XXX: Unfortunately we can't use constants here.
-//     modulo_value: "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551"
-// );
+public_nat_mod!(
+    type_name: P256Scalar,
+    type_of_canvas: ScalarCanvas,
+    bit_size_of_field: 256, // XXX: Unfortunately we can't use constants here.
+    modulo_value: "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551"
+);
 
-// pub type Affine = (P256FieldElement, P256FieldElement);
-// pub type AffineResult = Result<Affine, Error>;
-// type P256Jacobian = (P256FieldElement, P256FieldElement, P256FieldElement);
-// type JacobianResult = Result<P256Jacobian, Error>;
+pub type Affine = (P256FieldElement, P256FieldElement);
+pub type AffineResult = Result<Affine, Error>;
+type P256Jacobian = (P256FieldElement, P256FieldElement, P256FieldElement);
+type JacobianResult = Result<P256Jacobian, Error>;
 
-// bytes!(Element, 32);
+bytes!(Element, 32);
 
-// fn jacobian_to_affine(p: P256Jacobian) -> Affine {
-//     let (x, y, z) = p;
-//     let z2 = z.exp(2u32);
-//     let z2i = z2.inv();
-//     let z3 = z * z2;
-//     let z3i = z3.inv();
-//     let x = x * z2i;
-//     let y = y * z3i;
-//     (x, y)
-// }
+fn jacobian_to_affine(p: P256Jacobian) -> Affine {
+    let (x, y, z) = p;
+    let z2 = z.exp(2u32);
+    let z2i = z2.inv();
+    let z3 = z * z2;
+    let z3i = z3.inv();
+    let x = x * z2i;
+    let y = y * z3i;
+    (x, y)
+}
 
-// fn affine_to_jacobian(p: Affine) -> P256Jacobian {
-//     let (x, y) = p;
-//     (x, y, P256FieldElement::from_literal(1u64))
-// }
+fn affine_to_jacobian(p: Affine) -> P256Jacobian {
+    let (x, y) = p;
+    (x, y, P256FieldElement::from_literal(1u64))
+}
 
-// fn point_double(p: P256Jacobian) -> P256Jacobian {
-//     let (x1, y1, z1) = p;
-//     let delta = z1.exp(2u32);
-//     let gamma = y1.exp(2u32);
+fn point_double(p: P256Jacobian) -> P256Jacobian {
+    let (x1, y1, z1) = p;
+    let delta = z1.exp(2u32);
+    let gamma = y1.exp(2u32);
 
-//     let beta = x1 * gamma;
+    let beta = x1 * gamma;
 
-//     let alpha_1 = x1 - delta;
-//     let alpha_2 = x1 + delta;
-//     let alpha = P256FieldElement::from_literal(3u64) * (alpha_1 * alpha_2);
+    let alpha_1 = x1 - delta;
+    let alpha_2 = x1 + delta;
+    let alpha = P256FieldElement::from_literal(3u64) * (alpha_1 * alpha_2);
 
-//     let x3 = alpha.exp(2u32) - (P256FieldElement::from_literal(8u64) * beta);
+    let x3 = alpha.exp(2u32) - (P256FieldElement::from_literal(8u64) * beta);
 
-//     let z3_ = (y1 + z1).exp(2u32);
-//     let z3 = z3_ - (gamma + delta);
+    let z3_ = (y1 + z1).exp(2u32);
+    let z3 = z3_ - (gamma + delta);
 
-//     let y3_1 = (P256FieldElement::from_literal(4u64) * beta) - x3;
-//     let y3_2 = P256FieldElement::from_literal(8u64) * (gamma * gamma);
-//     let y3 = (alpha * y3_1) - y3_2;
-//     (x3, y3, z3)
-// }
+    let y3_1 = (P256FieldElement::from_literal(4u64) * beta) - x3;
+    let y3_2 = P256FieldElement::from_literal(8u64) * (gamma * gamma);
+    let y3 = (alpha * y3_1) - y3_2;
+    (x3, y3, z3)
+}
 
-// fn is_point_at_infinity(p: P256Jacobian) -> bool {
-//     let (_x, _y, z) = p;
-//     z.equal(P256FieldElement::from_literal(0u64))
-// }
+fn is_point_at_infinity(p: P256Jacobian) -> bool {
+    let (_x, _y, z) = p;
+    z.equal(P256FieldElement::from_literal(0u64))
+}
 
-// fn s1_equal_s2(s1: P256FieldElement, s2: P256FieldElement) -> JacobianResult {
-//     if s1.equal(s2) {
-//         JacobianResult::Err(Error::InvalidAddition)
-//     } else {
-//         JacobianResult::Ok((
-//             P256FieldElement::from_literal(0u64),
-//             P256FieldElement::from_literal(1u64),
-//             P256FieldElement::from_literal(0u64),
-//         ))
-//     }
-// }
+fn s1_equal_s2(s1: P256FieldElement, s2: P256FieldElement) -> JacobianResult {
+    if s1.equal(s2) {
+        JacobianResult::Err(Error::InvalidAddition)
+    } else {
+        JacobianResult::Ok((
+            P256FieldElement::from_literal(0u64),
+            P256FieldElement::from_literal(1u64),
+            P256FieldElement::from_literal(0u64),
+        ))
+    }
+}
 
 // fn point_add_jacob(p: P256Jacobian, q: P256Jacobian) -> JacobianResult {
 //     let mut result = JacobianResult::Ok(q);
