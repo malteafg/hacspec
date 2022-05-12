@@ -25,10 +25,17 @@ pub use hacspec_attributes::*;
 pub use secret_integers::*;
 
 pub use num::{self, traits::sign::Signed, BigUint, CheckedSub, Num, Zero};
-pub use std::num::ParseIntError;
-pub use std::ops::*;
-pub use std::str::FromStr;
-pub use std::{cmp::min, cmp::PartialEq};
+
+// pub use std::num::ParseIntError;
+// pub use std::ops::*;
+// pub use std::str::FromStr;
+// pub use std::{cmp::min, cmp::PartialEq};
+
+pub use core::num::ParseIntError;
+pub use core::ops::*;
+pub use core::str::FromStr;
+pub use core::{cmp::min, cmp::PartialEq};
+
 #[cfg(feature = "hacspec")]
 pub use std::{fmt, fmt::Debug};
 
@@ -43,4 +50,5 @@ public_bytes!(u64Word, 8);
 public_bytes!(u128Word, 16);
 
 // Re-export some std lib functions
-pub use std::convert::TryFrom; // Allow down-casting of integers.
+// pub use std::convert::TryFrom; // Allow down-casting of integers.
+pub use core::convert::TryFrom; // Allow down-casting of integers.
