@@ -11,3 +11,11 @@ readme = "README.md"
 
 [dependencies]
 num = "0.4"
+
+[dependencies.creusot-contracts]
+git = "https://github.com/xldenis/creusot/"
+branch = "master"
+package = "creusot-contracts"
+
+[features]
+contracts = []
