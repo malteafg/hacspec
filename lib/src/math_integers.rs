@@ -30,33 +30,45 @@ macro_rules! unsigned_public_integer {
         abstract_unsigned_public_integer!($name, $n);
 
         impl $name {
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             pub fn from_byte_seq_be<A: SeqTrait<U8>>(s: &A) -> $name {
-                $name::from_be_bytes(
-                    s.iter()
-                        .map(|x| U8::declassify(*x))
-                        .collect::<Vec<_>>()
-                        .as_slice(),
-                )
+                let mut temp = Vec::new();
+                let len = s.len();
+                let mut i = 0;
+                while i < len {
+                    temp.push(U8::declassify(s[i]));
+                    i += 1;
+                }
+
+                $name::from_be_bytes(temp.as_slice())
             }
 
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             pub fn from_public_byte_seq_be<A: SeqTrait<u8>>(s: A) -> $name {
-                // XXX: unnecessarily complex
-                $name::from_be_bytes(s.iter().map(|x| *x).collect::<Vec<_>>().as_slice())
+                let mut temp = Vec::new();
+                let len = s.len();
+                let mut i = 0;
+                while i < len {
+                    temp.push(s[i]);
+                    i += 1;
+                }
+
+                $name::from_be_bytes(temp.as_slice())
             }
 
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             pub fn to_byte_seq_be(self) -> hacspec_lib::Seq<U8> {
-                hacspec_lib::Seq::from_vec(
-                    self.to_be_bytes()
-                        .iter()
-                        .map(|x| U8::classify(*x))
-                        .collect::<Vec<U8>>(),
-                )
+                let mut temp = Vec::new();
+                let len = self.to_be_bytes().as_ref().len();
+                let mut i = 0;
+                while i < len {
+                    let te : u8 = self.to_be_bytes().as_ref()[i];
+                    temp.push(U8::classify(te));
+
+                    i += 1;
+                }
+
+                hacspec_lib::Seq::from_vec(temp)
             }
         }
 
@@ -65,24 +77,21 @@ macro_rules! unsigned_public_integer {
         impl UnsignedIntegerCopy for $name {}
         impl Integer for $name {
             // const NUM_BITS: usize = $n;
-            fn NUM_BITS () -> usize {
+            fn NUM_BITS() -> usize {
                 $n
             }
 
             #[inline]
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", in_hacspec)]
             fn ZERO() -> Self {
                 Self::from_literal(0)
             }
             #[inline]
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", in_hacspec)]
             fn ONE() -> Self {
                 Self::from_literal(1)
             }
             #[inline]
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", in_hacspec)]
             fn TWO() -> Self {
                 Self::from_literal(2)
@@ -90,24 +99,11 @@ macro_rules! unsigned_public_integer {
 
             // TODO -- fix creusot: 'not implemented: 128 bit integers not yet implemented' -- u64 was u128
             #[inline]
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", in_hacspec)]
             fn from_literal(val: u64) -> Self {
                 Self::from_literal(val)
             }
 
-
-            #[cfg(feature = "hacspec")]
-            #[hacspec_attributes::trusted]
-            #[inline]
-            #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
-            fn from_hex_string(s: &String) -> Self {
-                Self::from_hex(&s.replace("0x", ""))
-            }
-
-            
-            #[cfg(not(feature = "hacspec"))]
-            #[creusot_contracts::trusted]
             #[inline]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             fn from_hex_string(s: &String) -> Self {
@@ -132,7 +128,6 @@ macro_rules! unsigned_public_integer {
                 (self >> i) & Self::ONE()
             }
 
-            
             #[cfg(not(feature = "hacspec"))]
             #[creusot_contracts::trusted]
             /// Set bit `i` of this integer to `b` and return the result.
@@ -159,18 +154,6 @@ macro_rules! unsigned_public_integer {
                 (self & tmp1) | tmp2
             }
 
-            #[cfg(not(feature = "hacspec"))]
-            #[creusot_contracts::trusted]
-            /// Set bit `pos` of this integer to bit `yi` of integer `y`.
-            #[inline]
-            #[cfg_attr(feature = "use_attributes", in_hacspec)]
-            fn set(self, pos: usize, y: Self, yi: usize) -> Self {
-                let b = y.get_bit(yi);
-                self.set_bit(b, pos)
-            }
-
-            #[cfg(feature = "hacspec")]
-            #[hacspec_attributes::trusted]
             /// Set bit `pos` of this integer to bit `yi` of integer `y`.
             #[inline]
             #[cfg_attr(feature = "use_attributes", in_hacspec)]
@@ -215,7 +198,7 @@ macro_rules! unsigned_public_integer {
                 (self.clone() >> n) | (self << ((-(n as i32) as usize) & (Self::NUM_BITS() - 1)))
             }
         }
-        
+
         impl ModNumeric for $name {
             /// (self - rhs) % n.
             #[cfg_attr(feature = "use_attributes", in_hacspec)]
@@ -253,7 +236,7 @@ macro_rules! unsigned_public_integer {
                 self
             }
         }
-        
+
         impl Numeric for $name {
             /// Return largest value that can be represented.
             #[cfg_attr(feature = "use_attributes", in_hacspec)]
@@ -689,7 +672,7 @@ macro_rules! signed_integer {
         impl NumericCopy for $name {}
         impl Integer for $name {
             // const NUM_BITS: usize = $n;
-            fn NUM_BITS () -> usize {
+            fn NUM_BITS() -> usize {
                 $n
             }
 
@@ -937,7 +920,7 @@ macro_rules! nat_mod {
         impl NumericCopy for $name {}
         impl Integer for $name {
             // const NUM_BITS: usize = $bits;
-            fn NUM_BITS () -> usize {
+            fn NUM_BITS() -> usize {
                 $bits
             }
 
@@ -1180,7 +1163,6 @@ macro_rules! nat_mod {
         }
     };
 }
-        
 
 #[macro_export]
 macro_rules! public_nat_mod {
@@ -1189,33 +1171,42 @@ macro_rules! public_nat_mod {
         abstract_public_modular_integer!($name, $base, $base::from_hex($n));
 
         impl $name {
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             pub fn from_byte_seq_be<A: SeqTrait<U8>>(s: &A) -> $name {
-                $base::from_be_bytes(
-                    s.iter()
-                        .map(|x| U8::declassify(*x))
-                        .collect::<Vec<_>>()
-                        .as_slice(),
-                )
-                .into()
+                let mut temp = Vec::new();
+                let len = s.len();
+                let mut i = 0;
+                while i < len {
+                    temp.push(U8::declassify(s[i]));
+                    i += 1;
+                }
+
+                $base::from_be_bytes(temp.as_slice()).into()
             }
 
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             pub fn from_public_byte_seq_be<A: SeqTrait<u8>>(s: A) -> $name {
-                $base::from_be_bytes(s.iter().map(|x| *x).collect::<Vec<_>>().as_slice()).into()
+                let mut temp = Vec::new();
+                let len = s.len();
+                let mut i = 0;
+                while i < len {
+                    temp.push(s[i]);
+                    i += 1;
+                }
+                $base::from_be_bytes(temp.as_slice()).into()
             }
 
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             pub fn to_byte_seq_be(self) -> hacspec_lib::Seq<U8> {
-                hacspec_lib::Seq::from_vec(
-                    self.to_be_bytes()
-                        .iter()
-                        .map(|x| U8::classify(*x))
-                        .collect::<Vec<U8>>(),
-                )
+                let mut temp = Vec::new();
+                let len = self.to_be_bytes().len();
+                let mut i = 0;
+                while i < len {
+                    temp.push(U8::classify(self.to_be_bytes()[i]));
+                    i += 1;
+                }
+
+                hacspec_lib::Seq::from_vec(temp)
             }
 
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
@@ -1223,33 +1214,43 @@ macro_rules! public_nat_mod {
                 hacspec_lib::Seq::from_vec(self.to_be_bytes())
             }
 
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             pub fn from_byte_seq_le<A: SeqTrait<U8>>(s: A) -> $name {
-                $base::from_le_bytes(
-                    s.iter()
-                        .map(|x| U8::declassify(*x))
-                        .collect::<Vec<_>>()
-                        .as_slice(),
-                )
-                .into()
+                let mut temp = Vec::new();
+                let len = s.len();
+                let mut i = 0;
+                while i < len {
+                    temp.push(U8::declassify(s[i]));
+                    i += 1;
+                }
+
+                $base::from_le_bytes(temp.as_slice()).into()
             }
 
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             pub fn from_public_byte_seq_le<A: SeqTrait<u8>>(s: A) -> $name {
-                $base::from_le_bytes(s.iter().map(|x| *x).collect::<Vec<_>>().as_slice()).into()
+                let mut temp = Vec::new();
+                let len = s.len();
+                let mut i = 0;
+                while i < len {
+                    temp.push(s[i]);
+                    i += 1;
+                }
+
+                $base::from_le_bytes(temp.as_slice()).into()
             }
 
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             pub fn to_byte_seq_le(self) -> hacspec_lib::Seq<U8> {
-                hacspec_lib::Seq::from_vec(
-                    self.to_le_bytes()
-                        .iter()
-                        .map(|x| U8::classify(*x))
-                        .collect::<Vec<U8>>(),
-                )
+                let mut temp = Vec::new();
+                let len = self.to_le_bytes().len();
+                let mut i = 0;
+                while i < len {
+                    temp.push(U8::classify(self.to_le_bytes()[i]));
+                    i += 1;
+                }
+
+                hacspec_lib::Seq::from_vec(temp)
             }
 
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
@@ -1258,7 +1259,6 @@ macro_rules! public_nat_mod {
             }
 
             // TODO -- fix creusot: 'not implemented: 128 bit integers not yet implemented' -- u64 was u128
-            #[creusot_contracts::trusted]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             pub fn from_secret_literal(x: U64) -> $name {
                 $base::from_literal(U64::declassify(x)).into()
@@ -1270,10 +1270,10 @@ macro_rules! public_nat_mod {
         impl UnsignedIntegerCopy for $name {}
         impl Integer for $name {
             // const NUM_BITS: usize = $bits;
-            fn NUM_BITS () -> usize {
+            fn NUM_BITS() -> usize {
                 $bits
             }
- 
+
             #[inline]
             #[cfg_attr(feature = "use_attributes", in_hacspec)]
             fn ZERO() -> Self {
@@ -1297,24 +1297,12 @@ macro_rules! public_nat_mod {
                 Self::from_literal(val)
             }
 
-            #[cfg(feature = "hacspec")]
-            #[hacspec_attributes::trusted]
             #[inline]
             #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
             fn from_hex_string(s: &String) -> Self {
                 Self::from_hex(&s.replace("0x", ""))
             }
 
-            
-            #[cfg(not(feature = "hacspec"))]
-            #[creusot_contracts::trusted]
-            #[inline]
-            #[cfg_attr(feature = "use_attributes", unsafe_hacspec)]
-            fn from_hex_string(s: &String) -> Self {
-                Self::from_hex(&s.replace("0x", ""))
-            }
-
-            #[creusot_contracts::trusted]
             /// Get bit `i` of this integer.
             #[inline]
             #[cfg_attr(feature = "use_attributes", in_hacspec)]
@@ -1334,7 +1322,6 @@ macro_rules! public_nat_mod {
                 (self & tmp1) | tmp2
             }
 
-            #[creusot_contracts::trusted]
             /// Set bit `pos` of this integer to bit `yi` of integer `y`.
             #[inline]
             #[cfg_attr(feature = "use_attributes", in_hacspec)]
@@ -1359,7 +1346,7 @@ macro_rules! public_nat_mod {
                 (self.clone() >> n) | (self << ((-(n as i32) as usize) & (Self::NUM_BITS() - 1)))
             }
         }
-        
+
         impl ModNumeric for $name {
             /// (self - rhs) % n.
             #[cfg_attr(feature = "use_attributes", in_hacspec)]
@@ -1397,7 +1384,7 @@ macro_rules! public_nat_mod {
                 self
             }
         }
-        
+
         impl Numeric for $name {
             /// Return largest value that can be represented.
             #[cfg_attr(feature = "use_attributes", in_hacspec)]

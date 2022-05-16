@@ -60,17 +60,15 @@ macro_rules! abstract_int {
                 BigInt::from(1u32).shl(x).into()
             }
 
-            // TODO -- fix creusot: 'unsupported constant expression, try binding this to a variable. See issue #163'
-            #[creusot_contracts::trusted]
             /// Gets the `i`-th least significant bit of this integer.
             #[allow(dead_code)]
             pub fn bit(self, i: usize) -> bool {
-                assert!(
-                    i < self.b.as_ref().len() * 8,
-                    "the bit queried should be lower than the size of the integer representation: {} < {}",
-                    i,
-                    self.b.as_ref().len() * 8
-                );
+                // assert!(
+                //     i < self.b.as_ref().len() * 8,
+                //     "the bit queried should be lower than the size of the integer representation: {} < {}",
+                //     i,
+                //     self.b.as_ref().len() * 8
+                // );
                 let bigint : BigInt = self.into();
                 let tmp: BigInt = bigint >> i;
                 (tmp & BigInt::one()).to_bytes_le().1[0] == 1
@@ -595,7 +593,6 @@ macro_rules! abstract_unsigned {
                 repr
             }
 
-            // TODO : dependency on 'from_literal'
             /// Produces a new integer which is all ones if the two arguments are equal and
             /// all zeroes otherwise.
             /// **NOTE:** This is not constant time but `BigInt` generally isn't.
@@ -609,7 +606,6 @@ macro_rules! abstract_unsigned {
                 }
             }
 
-            // TODO : dependency on 'from_literal'
             /// Produces a new integer which is all ones if the first argument is different from
             /// the second argument, and all zeroes otherwise.
             /// **NOTE:** This is not constant time but `BigInt` generally isn't.
@@ -623,7 +619,6 @@ macro_rules! abstract_unsigned {
                 }
             }
 
-            // TODO : dependency on 'from_literal'
             /// Produces a new integer which is all ones if the first argument is greater than or
             /// equal to the second argument, and all zeroes otherwise.
             /// **NOTE:** This is not constant time but `BigInt` generally isn't.
@@ -637,7 +632,6 @@ macro_rules! abstract_unsigned {
                 }
             }
 
-            // TODO : dependency on 'from_literal'
             /// Produces a new integer which is all ones if the first argument is strictly greater
             /// than the second argument, and all zeroes otherwise.
             /// **NOTE:** This is not constant time but `BigInt` generally isn't.
@@ -651,7 +645,6 @@ macro_rules! abstract_unsigned {
                 }
             }
 
-            // TODO : dependency on 'from_literal'
             /// Produces a new integer which is all ones if the first argument is less than or
             /// equal to the second argument, and all zeroes otherwise.
             /// **NOTE:** This is not constant time but `BigInt` generally isn't.
@@ -665,7 +658,6 @@ macro_rules! abstract_unsigned {
                 }
             }
 
-            // TODO : dependency on 'from_literal'
             /// Produces a new integer which is all ones if the first argument is strictly less than
             /// the second argument, and all zeroes otherwise.
             /// **NOTE:** This is not constant time but `BigInt` generally isn't.
