@@ -68,7 +68,7 @@ public_nat_mod!(
     modulo_value: "8000000000000000000000000000000080000000000000000000000000000000"
 );
 
-type EdPoint = (
+pub type EdPoint = (
     Ed25519FieldElement,
     Ed25519FieldElement,
     Ed25519FieldElement,
@@ -95,7 +95,7 @@ pub enum Error {
 pub type VerifyResult = Result<(), Error>;
 
 #[rustfmt::skip]
-const BASE: CompressedEdPoint = CompressedEdPoint(secret_array!(
+pub const BASE: CompressedEdPoint = CompressedEdPoint(secret_array!(
     U8, 
     [
         0x58u8, 0x66u8, 0x66u8, 0x66u8, 0x66u8, 0x66u8, 0x66u8, 0x66u8,
@@ -168,7 +168,7 @@ fn is_negative(x: Ed25519FieldElement) -> U8 {
     }
 }
 
-fn compress(p: EdPoint) -> CompressedEdPoint {
+pub fn compress(p: EdPoint) -> CompressedEdPoint {
     let (x, y, z, _) = p;
     let z_inv = z.inv();
     let x = x * z_inv;
@@ -178,7 +178,7 @@ fn compress(p: EdPoint) -> CompressedEdPoint {
     CompressedEdPoint::from_slice(&s, 0, 32)
 }
 
-fn sqrt(a: Ed25519FieldElement) -> Option<Ed25519FieldElement> {
+pub fn sqrt(a: Ed25519FieldElement) -> Option<Ed25519FieldElement> {
     let p3_8 = Ed25519FieldElement::from_byte_seq_le(CONSTANT_P3_8);
     let p1_4 = Ed25519FieldElement::from_byte_seq_le(CONSTANT_P1_4);
 
@@ -200,7 +200,7 @@ fn check_canonical_point(mut x: CompressedEdPoint) -> bool {
     x < BigInteger::from_byte_seq_le(CONSTANT_P)
 }
 
-fn decompress(q: CompressedEdPoint) -> Option<EdPoint> {
+pub fn decompress(q: CompressedEdPoint) -> Option<EdPoint> {
     let d = Ed25519FieldElement::from_byte_seq_le(CONSTANT_D);
 
     let x_s = (q[31usize] & U8(128u8)) >> 7;
@@ -247,7 +247,7 @@ fn decompress_non_canonical(p: CompressedEdPoint) -> Option<EdPoint> {
     Some((x, y, z, x * y))
 }
 
-fn point_add(p: EdPoint, q: EdPoint) -> EdPoint {
+pub fn point_add(p: EdPoint, q: EdPoint) -> EdPoint {
     let d_c = Ed25519FieldElement::from_byte_seq_le(CONSTANT_D);
     let two = Ed25519FieldElement::TWO();
 
@@ -277,7 +277,7 @@ fn point_identity() -> EdPoint {
     )
 }
 
-fn point_mul(s: Scalar, p: EdPoint) -> EdPoint {
+pub fn point_mul(s: Scalar, p: EdPoint) -> EdPoint {
     let mut p = p;
     let mut q = point_identity();
     for i in 0..256 {
@@ -289,14 +289,14 @@ fn point_mul(s: Scalar, p: EdPoint) -> EdPoint {
     q
 }
 
-fn point_mul_by_cofactor(p: EdPoint) -> EdPoint {
+pub fn point_mul_by_cofactor(p: EdPoint) -> EdPoint {
     let p2 = point_add(p, p);
     let p4 = point_add(p2, p2);
     let p8 = point_add(p4, p4);
     p8
 }
 
-fn point_neg(p: EdPoint) -> EdPoint {
+pub fn point_neg(p: EdPoint) -> EdPoint {
     let (x, y, z, t) = p;
     (
         Ed25519FieldElement::ZERO() - x,
@@ -312,7 +312,22 @@ fn point_eq(p: EdPoint, q: EdPoint) -> bool {
     x1 * z2 == x2 * z1 && y1 * z2 == y2 * z1
 }
 
-fn secret_expand(sk: SecretKey) -> (SerializedScalar, SerializedScalar) {
+pub fn encode(p: EdPoint) -> ByteSeq {
+    let (x, y, z, _) = p;
+    let z_inv = z.inv();
+    let x = x * z_inv;
+    let y = y * z_inv;
+    let mut s: ByteSeq = y.to_byte_seq_le();
+    s[31] = s[31] ^ (is_negative(x) << 7); // setting top bit
+    s
+}
+
+pub fn decode(q_s: ByteSeq) -> Option<EdPoint> {
+    let q = CompressedEdPoint::from_slice(&q_s, 0, 32);
+    decompress(q)
+}
+
+pub fn secret_expand(sk: SecretKey) -> (SerializedScalar, SerializedScalar) {
     let h = sha512(&ByteSeq::from_slice(&sk, 0, 32));
     let h_d = SerializedScalar::from_slice(&h, 32, 32);
     let mut s = SerializedScalar::from_slice(&h, 0, 32);
@@ -328,6 +343,22 @@ pub fn secret_to_public(sk: SecretKey) -> PublicKey {
     let ss = Scalar::from_byte_seq_le(s);
     let a = point_mul(ss, base);
     compress(a)
+}
+
+pub fn secret_to_public_string(sk: SecretKey) -> ByteSeq {
+    let (s, _) = secret_expand(sk);
+    let base = decompress(BASE).unwrap();
+    let ss = Scalar::from_byte_seq_le(s);
+    let a = point_mul(ss, base);
+    encode(a)
+}
+
+pub fn normalize(p: EdPoint) -> EdPoint {
+    let px = p.0 * p.2.inv();
+    let py = p.1 * p.2.inv();
+    let pz = Ed25519FieldElement::ONE();
+    let pt = px * py;
+    (px, py, pz, pt)
 }
 
 fn check_canonical_scalar(s: SerializedScalar) -> bool {
@@ -439,7 +470,7 @@ pub fn ietf_cofactorless_verify(
     }
 }
 
-fn is_identity(p: EdPoint) -> bool {
+pub fn is_identity(p: EdPoint) -> bool {
     point_eq(p, point_identity())
 }
 
